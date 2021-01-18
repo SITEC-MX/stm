@@ -1,0 +1,146 @@
+<?php
+/**
+ * Sistemas Especializados e Innovación Tecnológica, SA de CV
+ * Mpsoft.STM - Framework de Desarrollo Web para PHP
+ *
+ * v.1.0.0.0 - 2021-01-15
+ */
+namespace Mpsoft\STM\Sesion;
+
+abstract class Sesion extends \Mpsoft\FDW\Sesion\Sesion
+{
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->VincularEvento("sesion_iniciada_correctamente", "CargarPermisosDeUsuario", function(){ $this->CargarPermisos(); });
+    }
+
+
+
+
+    protected $permisos = array();
+
+    private function CargarPermisos():void
+    {
+        // La sesión se acaba de iniciar y no tiene permisos. Le permitimos cargar los roles para inicializar los permisos.
+        $rol_permiso_nombre = Rol::ObtenerNombrePermiso();
+        $this->AgregarPermiso($rol_permiso_nombre, FDW_DATO_PERMISO_OBTENER);
+
+        $roles = Rol::CargarRolesDeUsuario($this->usuario);
+
+        $this->QuitarPermiso($rol_permiso_nombre, FDW_DATO_PERMISO_OBTENER);
+
+        $this->permisos = $this->CargarPermisosDeRoles($roles);
+    }
+
+    protected function CargarPermisosDeRoles(array $roles):array
+    {
+        $permisos = array();
+
+        foreach($roles as $rol) // Para cada rol
+        {
+            $permisos_del_rol = $rol->ObtenerPermisos();
+
+            foreach($permisos_del_rol as $permiso_nombre=>$permiso_valor) // Para cada permiso del rol
+            {
+                $permiso_actual = isset($permisos[$permiso_nombre]) ? $permisos[$permiso_nombre] : 0;
+
+                $permisos[$permiso_nombre] = $permiso_actual | $permiso_valor;
+            }
+        }
+
+        return $permisos;
+    }
+
+    public function ForzarPermiso(string $modulo, int $permiso):void
+    {
+        $this->permisos[$modulo] = $permiso;
+    }
+
+    public function AgregarPermiso(string $modulo, int $permiso):void
+    {
+        $permiso_final = isset($this->permisos[$modulo]) ? // Si el permiso ya existe
+            $this->permisos[$modulo] | $permiso : // El permiso final es el permiso actual + nuevo permiso
+            $permiso;
+
+        $this->permisos[$modulo] = $permiso;
+    }
+
+    public function QuitarPermiso(string $modulo, int $permiso):void
+    {
+        if(isset($this->permisos[$modulo])) // Si el permiso está definido
+        {
+            $this->permisos[$modulo] = $this->permisos[$modulo] & ~$permiso; // El permiso final es el permiso actual - permiso a quitar
+        }
+    }
+
+    public function ObtenerPermisos():array
+    {
+        return $this->permisos;
+    }
+
+    public function ObtenerPermiso(string $modulo):int
+    {
+        return isset($this->permisos[$modulo]) ? $this->permisos[$modulo] : 0;
+    }
+
+    public function PedirAutorizacion(string $modulo, int $permiso):bool
+    {
+        // Libre siempre es TRUE
+        $tiene_permiso = $modulo == "Libre";
+
+        if( isset($this->permisos[$modulo]) ) // Si el permiso existe
+        {
+            $tiene_permiso = ($this->permisos[$modulo] & $permiso) == $permiso;
+        }
+
+        return $tiene_permiso;
+    }
+
+
+
+
+
+
+
+
+    protected function UsuarioPuedeIniciarSesion(\Mpsoft\FDW\Sesion\Usuario $usuario):bool
+    {
+        if(!$usuario->ObtenerValor("activo"))
+        {
+            throw new Exception("El usuario no está activo.");
+        }
+
+        if($usuario->ObtenerValor("suspendido"))
+        {
+            throw new Exception("El usuario está suspendido.");
+        }
+
+        return TRUE;
+    }
+
+
+
+
+
+
+
+    public function ObtenerConfiguraciones():array
+    {
+        $usuario = $this->ObtenerUsuario();
+
+        $configuraciones = NULL;
+
+        if($usuario) // Si hay un usuario en sesión
+        {
+            $configuraciones = $usuario->ObtenerConfiguraciones();
+        }
+        else // Si no hay un usuario en sesion
+        {
+
+        }
+
+        return $configuraciones;
+    }
+}
