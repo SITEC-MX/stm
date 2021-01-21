@@ -104,6 +104,65 @@ abstract class Sesion extends \Mpsoft\FDW\Sesion\Sesion
 
 
 
+    public function AsignarTFASecretoAUsuario():string
+    {
+        $secreto = NULL;
+
+        if(!$this->usuario->ObtenerValor("tfa_habilitado")) // Si el usuario no tiene TFA habilitado
+        {
+            $clase_sesion = get_class($this);
+
+            $secreto = $clase_sesion::_GenerarTFASecreto();
+
+            $this->usuario->AsignarTFASecreto($secreto);
+        }
+        else // Si el usuario tiene TFA habilitado
+        {
+            throw new Exception("El usuario ya tiene TFA habilitado.");
+        }
+
+        return $secreto;
+    }
+
+    public function HabilitarTFAUsuario(string $codigo):bool
+    {
+        $exito = FALSE;
+
+        if(!$this->usuario->ObtenerValor("tfa_habilitado")) // Si el usuario no tiene TFA habilitado
+        {
+            $secreto = $this->usuario->ObtenerValor("tfa_secreto");
+
+            if($secreto) // Si el usuario ya tiene secreto TFA
+            {
+                $clase_sesion = get_class($this);
+
+                if($clase_sesion::_ValidarTFA($codigo, $secreto)) // Si el código TFA es válido
+                {
+                    $this->usuario->HabilitarTFA();
+
+                    $exito = TRUE;
+                }
+            }
+            else // Si el usuario no tiene secreto TFA
+            {
+                throw new Exception("El usuario no tiene secreto TFA.");
+            }
+        }
+        else // Si el usuario tiene TFA habilitado
+        {
+            throw new Exception("El usuario ya tiene TFA habilitado.");
+        }
+
+        return $exito;
+    }
+
+
+
+
+
+
+
+
 
     protected function UsuarioPuedeIniciarSesion(\Mpsoft\FDW\Sesion\Usuario $usuario):bool
     {
@@ -138,9 +197,16 @@ abstract class Sesion extends \Mpsoft\FDW\Sesion\Sesion
         }
         else // Si no hay un usuario en sesion
         {
-
+            throw new Exception("Sesión sin usuario - No implementado");
         }
 
         return $configuraciones;
     }
+
+
+
+
+    public abstract static function _GenerarTFASecreto():string;
+
+    public abstract static function _ValidarTFA(string $codigo, string $secreto):bool;
 }

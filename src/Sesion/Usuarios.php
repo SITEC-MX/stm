@@ -56,13 +56,15 @@ class Usuarios extends \Mpsoft\FDW\Sesion\Usuarios
         $campos["creacion"] = array("requerido" => true, "soloDeLectura" => true, "nombre" => "Creación", "tipoDeDato" => FDW_DATO_INT, "ignorarAlModificar"=>true, "ignorarAlObtenerValores"=>true);
         $campos["modificacion"] = array("requerido" => true, "soloDeLectura" => true, "nombre" => "Modificación", "tipoDeDato" => FDW_DATO_INT, "ignorarAlObtenerValores"=>true);
 
-
         $campos["nombre"] = array("requerido" => true, "soloDeLectura" => false, "nombre" => "Nombre", "tipoDeDato" => FDW_DATO_STRING, "tamanoMaximo"=>200);
         $campos["fotografia_perfil_url"] = array("requerido" => false, "soloDeLectura" => true, "nombre" => "Fotografía de perfil", "tipoDeDato" => FDW_DATO_STRING, "tamanoMaximo"=>255);
 
         $campos["contrasena_fecha"] = array("requerido" => false, "soloDeLectura" => true, "nombre" => "Fecha de contraseña", "tipoDeDato" => FDW_DATO_INT, "ignorarAlModificar" => true);
         $campos["intentos_login"] = array("requerido" => true, "soloDeLectura" => true, "nombre" => "Intentos de login fallidos", "tipoDeDato" => FDW_DATO_INT, "ignorarAlObtenerValores"=>true); // "ignorarAlModificar" => true -- no se puede ya que se modifica al aumentar intentos de login
         $campos["suspendido"] = array("requerido" => true, "soloDeLectura" => true, "nombre" => "Usuario suspendido", "tipoDeDato" => FDW_DATO_BOOL); // "ignorarAlModificar" => true -- no se puede ya que se modifica al aumentar intentos de login
+
+        $campos["tfa_habilitado"] = array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "¿TFA Habilitado?", "tipoDeDato" => FDW_DATO_INT);
+        $campos["tfa_secreto"] = array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "TFA Secret", "tipoDeDato" => FDW_DATO_STRING, "tamanoMaximo"=>110, "ignorarAlObtenerValores"=>TRUE);
 
         return $campos;
     }
