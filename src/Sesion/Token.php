@@ -9,11 +9,42 @@ namespace Mpsoft\STM\Sesion;
 
 abstract class Token extends \Mpsoft\FDW\Sesion\Token
 {
+    /**
+     * Constructor del Elemento
+     * @param ?int $id ID del Elemento o NULL para inicializar un Elemento nuevo.
+     */
+    public function __construct(?int $id = NULL)
+    {
+        parent::__construct($id);
+
+        if($id) // Si el Elemento existe
+        {
+        }
+        else // Si el Elemento es nuevo
+        {
+            $this->VincularEvento("AntesDeAgregar", "BloquearTokenSiUsuarioTieneTFA", function(){ $this->BloquearTokenSiUsuarioTieneTFA(); });
+        }
+    }
+
+
+
+    private function BloquearTokenSiUsuarioTieneTFA()
+    {
+        $usuario = $this->ObtenerUsuario();
+
+        $bloqueado = $usuario->ObtenerValor("tfa_habilitado");
+
+        $this->AsignarValorSinValidacion("bloqueado", $bloqueado);
+    }
+
+
+
+
     protected function GenerarTokenAleatorio():string
     {
-        global $EMPRESA;
+        global $CFG;
 
-        $semilla = time() . $EMPRESA["repositorio"] . rand(1000,9999);
+        $semilla = time() . rand(100000,999999) . $CFG->token_semilla;
 
         $sha512 = hash("sha512", $semilla, TRUE);
 
@@ -84,6 +115,8 @@ abstract class Token extends \Mpsoft\FDW\Sesion\Token
     public static function ObtenerInformacionDeCampos():array
     {
         $campos = \Mpsoft\FDW\Sesion\Token::ObtenerInformacionDeCampos();
+
+        $campos["bloqueado"] = array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "¿Token bloqueado?", "tipoDeDato" => FDW_DATO_BOOL); // Es requerido pero se asigna antes de agregar
 
         return $campos;
     }

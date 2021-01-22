@@ -156,6 +156,11 @@ abstract class Sesion extends \Mpsoft\FDW\Sesion\Sesion
         return $exito;
     }
 
+    public function TokenBloqueado():bool
+    {
+        return $this->token->ObtenerValor("bloqueado");
+    }
+
 
 
 
