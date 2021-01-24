@@ -37,6 +37,18 @@ abstract class Token extends \Mpsoft\FDW\Sesion\Token
         $this->AsignarValorSinValidacion("bloqueado", $bloqueado);
     }
 
+    public function Bloquear()
+    {
+        $this->AsignarValorSinValidacion("bloqueado", TRUE);
+        $this->AplicarCambios();
+    }
+
+    public function Desbloquear()
+    {
+        $this->AsignarValorSinValidacion("bloqueado", FALSE);
+        $this->AplicarCambios();
+    }
+
 
 
 

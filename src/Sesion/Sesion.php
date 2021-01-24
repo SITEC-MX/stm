@@ -161,6 +161,38 @@ abstract class Sesion extends \Mpsoft\FDW\Sesion\Sesion
         return $this->token->ObtenerValor("bloqueado");
     }
 
+    public function DesbloquearToken(string $codigo):bool
+    {
+        $exito = FALSE;
+
+        if( $this->SesionIniciada() ) // Si la sesión está iniciada
+        {
+            if( $this->TokenBloqueado() ) // Si el token está bloqueado
+            {
+                $secreto = $this->usuario->ObtenerValor("tfa_secreto");
+
+                $clase_sesion = get_class($this);
+
+                if($clase_sesion::_ValidarTFA($codigo, $secreto)) // Si el código TFA es válido
+                {
+                    $this->token->Desbloquear();
+
+                    $exito = TRUE;
+                }
+            }
+            else // Si el token no está bloqueado
+            {
+                throw new Exception("El token no está bloqueado.");
+            }
+        }
+        else // Si la sesión no está iniciada
+        {
+            throw new Exception("La sesión no está iniciada.");
+        }
+
+        return $exito;
+    }
+
 
 
 

@@ -5,3 +5,5 @@
  *
  * v.2.0.0.0 - 2020-09-13
  */
+
+define("TOKEN_BLOQUEADO", -100);                          // El token está bloqueado
