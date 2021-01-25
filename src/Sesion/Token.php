@@ -28,6 +28,9 @@ abstract class Token extends \Mpsoft\FDW\Sesion\Token
 
 
 
+
+
+
     private function BloquearTokenSiUsuarioTieneTFA()
     {
         $usuario = $this->ObtenerUsuario();
@@ -52,6 +55,9 @@ abstract class Token extends \Mpsoft\FDW\Sesion\Token
 
 
 
+
+
+
     protected function GenerarTokenAleatorio():string
     {
         global $CFG;
@@ -64,6 +70,19 @@ abstract class Token extends \Mpsoft\FDW\Sesion\Token
 
         return substr($token, 0, 86);
     }
+
+
+
+
+
+    public function ActualizarUltimaAccion()
+    {
+        $tiempo = time();
+
+        $this->AsignarValorSinValidacion("ultimaaccion_tiempo", $tiempo);
+        $this->AplicarCambios();
+    }
+
 
 
 
@@ -129,6 +148,7 @@ abstract class Token extends \Mpsoft\FDW\Sesion\Token
         $campos = \Mpsoft\FDW\Sesion\Token::ObtenerInformacionDeCampos();
 
         $campos["bloqueado"] = array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "¿Token bloqueado?", "tipoDeDato" => FDW_DATO_BOOL); // Es requerido pero se asigna antes de agregar
+        $campos["ultimaaccion_tiempo"] = array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "Última acción - Tiempo", "tipoDeDato" => FDW_DATO_INT);
 
         return $campos;
     }

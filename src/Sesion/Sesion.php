@@ -14,6 +14,9 @@ abstract class Sesion extends \Mpsoft\FDW\Sesion\Sesion
         parent::__construct();
 
         $this->VincularEvento("sesion_iniciada_correctamente", "CargarPermisosDeUsuario", function(){ $this->CargarPermisos(); });
+        $this->VincularEvento("sesion_reiniciada_correctamente", "CargarPermisosDeUsuario", function(){ $this->CargarPermisos(); });
+
+        $this->VincularEvento("sesion_reiniciada_correctamente", "GuardarUltimaAccion", function(){ $this->GuardarUltimaAccion(); });
     }
 
 
@@ -96,6 +99,19 @@ abstract class Sesion extends \Mpsoft\FDW\Sesion\Sesion
         }
 
         return $tiene_permiso;
+    }
+
+
+
+
+
+
+    private function GuardarUltimaAccion():void
+    {
+        if( !$this->TokenBloqueado() ) // Si el token no está bloqueado
+        {
+            $this->token->ActualizarUltimaAccion();
+        }
     }
 
 
