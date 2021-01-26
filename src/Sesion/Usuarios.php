@@ -63,7 +63,7 @@ class Usuarios extends \Mpsoft\FDW\Sesion\Usuarios
         $campos["intentos_login"] = array("requerido" => true, "soloDeLectura" => true, "nombre" => "Intentos de login fallidos", "tipoDeDato" => FDW_DATO_INT, "ignorarAlObtenerValores"=>true); // "ignorarAlModificar" => true -- no se puede ya que se modifica al aumentar intentos de login
         $campos["suspendido"] = array("requerido" => true, "soloDeLectura" => true, "nombre" => "Usuario suspendido", "tipoDeDato" => FDW_DATO_BOOL); // "ignorarAlModificar" => true -- no se puede ya que se modifica al aumentar intentos de login
 
-        $campos["tfa_habilitado"] = array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "¿TFA Habilitado?", "tipoDeDato" => FDW_DATO_INT);
+        $campos["tfa_habilitado"] = array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "¿TFA Habilitado?", "tipoDeDato" => FDW_DATO_BOOL);
         $campos["tfa_secreto"] = array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "TFA Secret", "tipoDeDato" => FDW_DATO_STRING, "tamanoMaximo"=>110, "ignorarAlObtenerValores"=>TRUE);
 
         return $campos;
