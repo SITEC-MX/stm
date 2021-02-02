@@ -8,8 +8,9 @@
 namespace Mpsoft\STM\Dato;
 
 use Mpsoft\FDW\Dato\ElementoException;
+use Mpsoft\STM\Sesion\Usuario;
 
-class Historial extends \Mpsoft\STM\Dato\ElementoSoloLectura
+class Historial extends \Mpsoft\STM\Dato\ElementoFDW
 {
     /**
      * Constructor del Elemento
@@ -17,14 +18,21 @@ class Historial extends \Mpsoft\STM\Dato\ElementoSoloLectura
      */
     public function __construct(?int $id = NULL)
     {
+        parent::__construct($id);
+
         global $SESION;
 
-        if(!$SESION->SesionIniciada()) // Si la sesión de usuario no está iniciada
+        if($id) // Si se inicializa un elemento existente
         {
-            throw new ElementoException("Se requiere de una sesión válida para poder inicializar STM_Dato_Historial", "STM_Dato_Historial");
-        }
 
-        parent::__construct($id);
+        }
+        else // Si se inicializa un elemento nuevo
+        {
+            if(!$SESION->SesionIniciada()) // Si la sesión de usuario no está iniciada
+            {
+                throw new ElementoException("Se requiere de una sesión válida para poder inicializar el elemento.", Historial::class);
+            }
+        }
 
         $this->VincularEvento("AntesDeAgregar", "AntesDeAgregar", function(){ $this->AntesDeAgregar(); });
         $this->VincularEvento("AntesDeModificar", "AntesDeModificar", function(){ $this->AntesDeModificar(); });
@@ -49,7 +57,7 @@ class Historial extends \Mpsoft\STM\Dato\ElementoSoloLectura
      * Obtiene el campo del Elemento que no es válido.
      * @return array Arreglo con la información del campo que no es válido. array( "campo" => campo, "error" => descripción del error ) o null si todos los campos son válidos.
      */
-    public function ValidarDatos()
+    public function ValidarDatos():?array
     {
         return null;
     }
@@ -58,7 +66,7 @@ class Historial extends \Mpsoft\STM\Dato\ElementoSoloLectura
      * Procedimiento que elimina el Elemento. Este método será invocado por el Elemento al ejecutar el método Eliminar.
      * _Eliminar se ejecuta después de ejecutar el evento AntesDeEliminar y antes de ejecutar el evento DespuesDeEliminar
      */
-    protected function _Eliminar()
+    protected function _Eliminar():void
     {
         throw new ElementoException("No implementado");
     }
@@ -67,8 +75,10 @@ class Historial extends \Mpsoft\STM\Dato\ElementoSoloLectura
     {
         global $SESION;
 
+        $usuario =  $SESION->ObtenerUsuario();
+        $this->AsignarUsuario($usuario);
+
         $this->AsignarValorSinValidacion("tiempo", time());
-        $this->AsignarValorSinValidacion("usuario_id", $SESION->ObtenerUsuario()->ObtenerValor("id"));
     }
 
     private function AntesDeModificar()
@@ -79,6 +89,52 @@ class Historial extends \Mpsoft\STM\Dato\ElementoSoloLectura
 
 
 
+
+
+
+    private function AsignarUsuario(Usuario $usuario):void
+    {
+        Elemento::AsignarElemento($this, "usuario_id", $usuario);
+    }
+
+
+
+
+
+
+
+
+
+    public static function CrearEntrada(?int $elemento, int $accion, int $elemento_id = NULL, string $info = NULL):void
+    {
+        $historial = new Historial();
+        $historial->AsignarValorSinValidacion("elemento", $elemento);
+        $historial->AsignarValorSinValidacion("accion", $accion);
+        $historial->AsignarValorSinValidacion("elemento_id", $elemento_id);
+        $historial->AsignarValorSinValidacion("info", $info);
+
+        $historial->AplicarCambios();
+    }
+
+
+
+
+
+
+
+
+
+
+    /**
+     * Inicializa el gestor de base de datos utilizado por el Elemento
+     * @return \Mpsoft\FDW\Dato\BdD
+     */
+    public static function InicializarBaseDeDatos():\Mpsoft\FDW\Dato\BdD
+    {
+        global $BDD;
+
+        return $BDD;
+    }
 
     /**
      * Obtiene el nombre de la tabla en la base de datos utilizada por el Elemento
@@ -110,22 +166,22 @@ class Historial extends \Mpsoft\STM\Dato\ElementoSoloLectura
     {
         return array
             (
-            "id" => array("requerido" => true, "soloDeLectura" => true, "nombre" => "ID", "tipoDeDato" => FDW_DATO_INT),
-            "usuario_id" => array("requerido" => false, "soloDeLectura" => true, "nombre" => "ID de Usuario", "tipoDeDato" => FDW_DATO_INT), // Requeridos pero se auto-asignan
-            "tiempo" => array("requerido" => false, "soloDeLectura" => true, "nombre" => "Tiempo", "tipoDeDato" => FDW_DATO_INT), // Requeridos pero se auto-asignan
-            "elemento" => array("requerido" => true, "soloDeLectura" => false, "nombre" => "Elemento", "tipoDeDato" => FDW_DATO_INT),
-            "accion" => array("requerido" => true, "soloDeLectura" => false, "nombre" => "Acción", "tipoDeDato" => FDW_DATO_INT),
-            "info" => array("requerido" => false, "soloDeLectura" => false, "nombre" => "Información", "tipoDeDato" => FDW_DATO_STRING, "tamanoMaximo"=>25)
+            "id" => array("requerido" => TRUE, "soloDeLectura" => TRUE, "nombre" => "ID", "tipoDeDato" => FDW_DATO_INT),
+            "usuario_id" => array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "ID de Usuario", "tipoDeDato" => FDW_DATO_INT), // Requeridos pero se auto-asignan
+            "tiempo" => array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "Tiempo", "tipoDeDato" => FDW_DATO_INT), // Requeridos pero se auto-asignan
+            "elemento" => array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "Elemento", "tipoDeDato" => FDW_DATO_INT),
+            "accion" => array("requerido" => TRUE, "soloDeLectura" => TRUE, "nombre" => "Acción", "tipoDeDato" => FDW_DATO_INT),
+            "elemento_id" => array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "ID del Elemento", "tipoDeDato" => FDW_DATO_INT),
+            "info" => array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "Información", "tipoDeDato" => FDW_DATO_STRING, "tamanoMaximo"=>65535)
         );
     }
 
-    public static function CrearEntrada($elemento, $accion, $info = NULL)
-    {
-        $historial = new Historial();
-        $historial->AsignarValor("elemento", $elemento);
-        $historial->AsignarValor("accion", $accion);
-        $historial->AsignarValor("info", $info);
 
-        $historial->AplicarCambios();
+    /**
+     * Obtiene el nombre del permiso del Elemento
+     */
+    public static function ObtenerNombrePermiso():string
+    {
+        return "Historial";
     }
 }

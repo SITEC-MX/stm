@@ -87,12 +87,13 @@ class Historiales extends \Mpsoft\STM\Dato\ModuloFDW
     {
         return array
             (
-            "id" => array("requerido" => true, "soloDeLectura" => true, "nombre" => "ID", "tipoDeDato" => FDW_DATO_INT),
-            "usuario_id" => array("requerido" => false, "soloDeLectura" => true, "nombre" => "ID de Usuario", "tipoDeDato" => FDW_DATO_INT), // Requeridos pero se auto-asignan
-            "tiempo" => array("requerido" => false, "soloDeLectura" => true, "nombre" => "Tiempo", "tipoDeDato" => FDW_DATO_INT), // Requeridos pero se auto-asignan
-            "elemento" => array("requerido" => true, "soloDeLectura" => false, "nombre" => "Elemento", "tipoDeDato" => FDW_DATO_INT),
-            "accion" => array("requerido" => true, "soloDeLectura" => false, "nombre" => "Acción", "tipoDeDato" => FDW_DATO_INT),
-            "info" => array("requerido" => false, "soloDeLectura" => false, "nombre" => "Información", "tipoDeDato" => FDW_DATO_STRING, "tamanoMaximo"=>65535),
+            "id" => array("requerido" => true, "soloDeLectura" => TRUE, "nombre" => "ID", "tipoDeDato" => FDW_DATO_INT),
+            "usuario_id" => array("requerido" => false, "soloDeLectura" => TRUE, "nombre" => "ID de Usuario", "tipoDeDato" => FDW_DATO_INT), // Requeridos pero se auto-asignan
+            "tiempo" => array("requerido" => false, "soloDeLectura" => TRUE, "nombre" => "Tiempo", "tipoDeDato" => FDW_DATO_INT), // Requeridos pero se auto-asignan
+            "elemento" => array("requerido" => true, "soloDeLectura" => TRUE, "nombre" => "Elemento", "tipoDeDato" => FDW_DATO_INT),
+            "accion" => array("requerido" => true, "soloDeLectura" => TRUE, "nombre" => "Acción", "tipoDeDato" => FDW_DATO_INT),
+            "elemento_id" => array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "ID del Elemento", "tipoDeDato" => FDW_DATO_INT),
+            "info" => array("requerido" => false, "soloDeLectura" => TRUE, "nombre" => "Información", "tipoDeDato" => FDW_DATO_STRING, "tamanoMaximo"=>65535),
 
             "usuario_usuario" => array("requerido" => false, "soloDeLectura" => false, "nombre" => "Usuario", "tipoDeDato" => FDW_DATO_STRING, "tamanoMaximo"=>255, "identificadorJoin"=>"u", "campoExterno"=>"usuario"),
             "usuario_nombre" => array("requerido" => false, "soloDeLectura" => false, "nombre" => "Usuario", "tipoDeDato" => FDW_DATO_STRING, "tamanoMaximo"=>200, "identificadorJoin"=>"u", "campoExterno"=>"usuario")

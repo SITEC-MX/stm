@@ -9,6 +9,7 @@ namespace Mpsoft\STM\Dato;
 
 use Mpsoft\FDW\Dato\ElementoException;
 use Exception;
+use \Mpsoft\STM\Dato\Historial;
 
 abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
 {
@@ -20,6 +21,8 @@ abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
     public function __construct(?int $id = NULL)
     {
         parent::__construct($id);
+
+        $this->AgregarEvento("AlBloquearElemento");
 
         if ($id > 0) // Si es un Elemento existente
         {
@@ -37,6 +40,12 @@ abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
         $this->VincularEvento("AntesDeModificar",   "ImpedirModificarEliminarInactivos", function(){ $this->ImpedirModificarEliminarInactivos(); });
 
         $this->VincularEvento("AntesDeModificar", "ActualizarTiempoModificar", function(){ $this->ActualizarTiempoModificar(); });
+
+        $this->VincularEvento("AlBloquearElemento", "CrearHistorial", function(){ $this->CrearHistorialBloquear(); });
+        $this->VincularEvento("DespuesDeAgregar", "CrearHistorial", function(){ $this->CrearHistorialAgregar(); });
+        $this->VincularEvento("AntesDeModificar", "PrepararInformacionParaHistorial", function(){ $this->PrepararInformacionParaHistorial(); });
+        $this->VincularEvento("DespuesDeModificar", "CrearHistorial", function(){ $this->CrearHistorialModificar(); });
+        $this->VincularEvento("DespuesDeEliminar", "CrearHistorial", function(){ $this->CrearHistorialEliminar(); });
     }
 
 
@@ -118,6 +127,8 @@ abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
         $usuario = $SESION->ObtenerUsuario();
         if($usuario) // Si hay un usuario en sesión
         {
+            $base_de_datos = $this->_InicializarBaseDeDatos();
+
             $segundos_de_bloqueo = $this->ObtenerSegundosDeBloqueo();
 
             $sesion_usuario_id = $usuario->ObtenerValor("id");
@@ -125,27 +136,37 @@ abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
             $bloqueo_usuario_id = $this->ObtenerValor("bloqueo_usuario_id");
             $bloqueo_tiempo_hasta = $this->ObtenerValor("bloqueo_tiempo") + $segundos_de_bloqueo; // El Elemento está bloqueado hasta este tiempo
 
-            $tiempo = time();
-
-            if($bloqueo_usuario_id == $sesion_usuario_id || $tiempo > $bloqueo_tiempo_hasta) // Si el bloqueo expiró
+            if($bloqueo_usuario_id == $sesion_usuario_id) // Si el usuario tiene el bloqueo
             {
-                $base_de_datos = $this->_InicializarBaseDeDatos();
-
-                $base_de_datos->EjecutarUPDATE
-                    (
-                        $this->_ObtenerNombreTabla(), // Tabla
-                        array("bloqueo_usuario_id", "bloqueo_tiempo"), // Campos
-                        array($sesion_usuario_id, $tiempo), // Valores
-                        array // Filtros
-                        (
-                            "id" => array(array("operador"=>FDW_DATO_BDD_OPERADOR_IGUAL, "operando"=>$this->ObtenerValor("id")))
-                        )
-                    );
+                // Actualizamos el tiempo de bloqueo
+                $this->_ActualizarTiempoDeBloqueo();
 
                 $elemento_bloqueado = TRUE;
+            }
+            else // Si el usuario no tiene bloqueo
+            {
+                if(!$bloqueo_usuario_id || $tiempo > $bloqueo_tiempo_hasta) // Si el bloqueo del usuario anterior expiró (o el elemento no está bloqueado)
+                {
+                    $tiempo = time();
 
-                $this->AsignarSinValidarNiNotificar("bloqueo_usuario_id", $sesion_usuario_id);
-                $this->AsignarSinValidarNiNotificar("bloqueo_tiempo", $tiempo);
+                    $base_de_datos->EjecutarUPDATE
+                        (
+                            $this->_ObtenerNombreTabla(), // Tabla
+                            array("bloqueo_usuario_id", "bloqueo_tiempo"), // Campos
+                            array($sesion_usuario_id, $tiempo), // Valores
+                            array // Filtros
+                            (
+                                "id" => array(array("operador"=>FDW_DATO_BDD_OPERADOR_IGUAL, "operando"=>$this->ObtenerValor("id")))
+                            )
+                        );
+
+                    $this->AsignarSinValidarNiNotificar("bloqueo_usuario_id", $sesion_usuario_id);
+                    $this->AsignarSinValidarNiNotificar("bloqueo_tiempo", $tiempo);
+
+                    $elemento_bloqueado = TRUE;
+
+                    $this->DispararEvento("AlBloquearElemento");
+                }
             }
         }
         else // Si no hay un usuario en sesión
@@ -154,6 +175,25 @@ abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
         }
 
         return $elemento_bloqueado;
+    }
+
+    private function _ActualizarTiempoDeBloqueo():void
+    {
+        $tiempo = time();
+
+        $base_de_datos = $this->_InicializarBaseDeDatos();
+        $base_de_datos->EjecutarUPDATE
+            (
+                $this->_ObtenerNombreTabla(), // Tabla
+                array("bloqueo_tiempo"), // Campos
+                array($tiempo), // Valores
+                array // Filtros
+                (
+                    "id" => array(array("operador"=>FDW_DATO_BDD_OPERADOR_IGUAL, "operando"=>$this->ObtenerValor("id")))
+                )
+            );
+
+        $this->AsignarSinValidarNiNotificar("bloqueo_tiempo", $tiempo);
     }
 
     public function BloqueadoPorUsuarioEnSesion():bool
@@ -173,37 +213,61 @@ abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
         return $bloqueado_por_usuario_en_sesion;
     }
 
-    public function ActualizarTiempoDeBloqueo():void
-    {
-        global $SESION;
-
-        $usuario = $SESION->ObtenerUsuario();
-        if($usuario) // Si hay un usuario en sesión
-        {
-            $sesion_usuario_id = $usuario->ObtenerValor("id");
-            $bloqueo_usuario_id = $this->ObtenerValor("bloqueo_usuario_id");
-            $tiempo = time();
-
-            if($bloqueo_usuario_id == $sesion_usuario_id || $this->EsNuevo()) // Si el usuario actual tiene el bloqueo
-            {
-                $this->AsignarValorSinValidacion("bloqueo_usuario_id", $sesion_usuario_id);
-                $this->AsignarValorSinValidacion("bloqueo_tiempo", $tiempo);
-            }
-            else
-            {
-                throw new Exception("El bloqueo del Elemento pertenece a otro usuario.");
-            }
-        }
-        else // Si no hay un usuario en sesión
-        {
-            throw new Exception("Se requiere un usuario en sesión para actualizar el tiempo de bloqueo del Elemento.");
-        }
-    }
-
     /**
      * Obtiene el número de segundos que se bloqueará el Elemento al ejecutar el método Bloquear()
      */
     protected abstract function ObtenerSegundosDeBloqueo():int;
+
+
+
+
+
+
+
+
+
+    private function CrearHistorialBloquear():void
+    {
+        $this->GuardarHistorial(STM_HISTORIAL_ACCION_OBTENER);
+    }
+
+    private function CrearHistorialAgregar():void
+    {
+        $this->GuardarHistorial(STM_HISTORIAL_ACCION_AGREGAR);
+    }
+
+    protected $historial_info = NULL;
+    protected function PrepararInformacionParaHistorial():void
+    {
+        $historial_info = $this->ObtenerValoresOriginalesModificados();
+        unset($historial_info["modificacion"]);
+
+        $this->historial_info = $historial_info;
+    }
+
+    private function CrearHistorialModificar():void
+    {
+        $this->GuardarHistorial(STM_HISTORIAL_ACCION_MODIFICAR, json_encode($this->historial_info));
+
+        $this->historial_info = NULL;
+    }
+
+    private function CrearHistorialEliminar():void
+    {
+        $this->GuardarHistorial(STM_HISTORIAL_ACCION_ELIMINAR);
+    }
+
+    protected function GuardarHistorial(int $accion, string $info=NULL):void
+    {
+        $elemento = $this->clase_actual::ObtenerTipoHistorial();
+        $elemento_id = $this->ObtenerValor("id");
+
+        Historial::CrearEntrada($elemento, $accion, $elemento_id, $info);
+    }
+
+
+
+
 
 
 

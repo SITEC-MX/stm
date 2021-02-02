@@ -1,0 +1,58 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Name>STM</Name>
+    <ProjectGuid>{316fc2b4-9c5a-40bb-abb7-6ed0f5db2633}</ProjectGuid>
+    <RootNamespace>
+    </RootNamespace>
+    <OutputType>Library</OutputType>
+    <ProjectTypeGuids>{A0786B88-2ADB-4C21-ABE8-AA2D79766269}</ProjectTypeGuids>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <IncludeDebugInformation>true</IncludeDebugInformation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <IncludeDebugInformation>false</IncludeDebugInformation>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="src\Core\Formato.php" />
+    <Compile Include="src\Dato\Aplicacion.php" />
+    <Compile Include="src\Dato\Aplicaciones.php" />
+    <Compile Include="src\Dato\Archivo.php" />
+    <Compile Include="src\Dato\Archivos.php" />
+    <Compile Include="src\Dato\Configuracion.php" />
+    <Compile Include="src\Dato\Configuraciones.php" />
+    <Compile Include="src\Dato\Elemento.php" />
+    <Compile Include="src\Dato\ElementoFDW.php" />
+    <Compile Include="src\Dato\ElementoSoloLectura.php" />
+    <Compile Include="src\Dato\GuardarConfiguracionException.php" />
+    <Compile Include="src\Dato\Historial.php" />
+    <Compile Include="src\Dato\Historiales.php" />
+    <Compile Include="src\Dato\Modulo.php" />
+    <Compile Include="src\Dato\ModuloFDW.php" />
+    <Compile Include="src\Sesion\Permiso.php" />
+    <Compile Include="src\Sesion\Permisos.php" />
+    <Compile Include="src\Sesion\Rol.php" />
+    <Compile Include="src\Sesion\Roles.php" />
+    <Compile Include="src\Sesion\Sesion.php" />
+    <Compile Include="src\Sesion\Token.php" />
+    <Compile Include="src\Sesion\Tokenes.php" />
+    <Compile Include="src\Sesion\Usuario.php" />
+    <Compile Include="src\Sesion\UsuarioRol.php" />
+    <Compile Include="src\Sesion\UsuarioRoles.php" />
+    <Compile Include="src\Sesion\Usuarios.php" />
+    <Compile Include="src\API.php" />
+    <Compile Include="src\funciones.php" />
+    <Compile Include="src\macros.php" />
+    <Compile Include=".gitignore" />
+    <Compile Include="composer.json" />
+    <Compile Include="LICENSE" />
+    <Compile Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\Core" />
+    <Folder Include="src\Dato" />
+    <Folder Include="src\Sesion" />
+    <Folder Include="src" />
+  </ItemGroup>
+</Project>

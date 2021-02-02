@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.1145
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{A0786B88-2ADB-4C21-ABE8-AA2D79766269}") = "STM", "STM.phpproj", "{C9900B70-5DEA-4D17-A2EC-140A1C90CF6A}"
+Project("{A0786B88-2ADB-4C21-ABE8-AA2D79766269}") = "STM", "STM.phpproj", "{316FC2B4-9C5A-40BB-ABB7-6ED0F5DB2633}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,8 +11,8 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C9900B70-5DEA-4D17-A2EC-140A1C90CF6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C9900B70-5DEA-4D17-A2EC-140A1C90CF6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{316FC2B4-9C5A-40BB-ABB7-6ED0F5DB2633}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{316FC2B4-9C5A-40BB-ABB7-6ED0F5DB2633}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
