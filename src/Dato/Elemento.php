@@ -135,6 +135,7 @@ abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
 
             $bloqueo_usuario_id = $this->ObtenerValor("bloqueo_usuario_id");
             $bloqueo_tiempo_hasta = $this->ObtenerValor("bloqueo_tiempo") + $segundos_de_bloqueo; // El Elemento está bloqueado hasta este tiempo
+            $tiempo = time();
 
             if($bloqueo_usuario_id == $sesion_usuario_id) // Si el usuario tiene el bloqueo
             {
@@ -147,8 +148,6 @@ abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
             {
                 if(!$bloqueo_usuario_id || $tiempo > $bloqueo_tiempo_hasta) // Si el bloqueo del usuario anterior expiró (o el elemento no está bloqueado)
                 {
-                    $tiempo = time();
-
                     $base_de_datos->EjecutarUPDATE
                         (
                             $this->_ObtenerNombreTabla(), // Tabla
