@@ -127,15 +127,8 @@ abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
         $usuario = $SESION->ObtenerUsuario();
         if($usuario) // Si hay un usuario en sesión
         {
-            $base_de_datos = $this->_InicializarBaseDeDatos();
-
-            $segundos_de_bloqueo = $this->ObtenerSegundosDeBloqueo();
-
-            $sesion_usuario_id = $usuario->ObtenerValor("id");
-
             $bloqueo_usuario_id = $this->ObtenerValor("bloqueo_usuario_id");
-            $bloqueo_tiempo_hasta = $this->ObtenerValor("bloqueo_tiempo") + $segundos_de_bloqueo; // El Elemento está bloqueado hasta este tiempo
-            $tiempo = time();
+            $sesion_usuario_id = $usuario->ObtenerValor("id");
 
             if($bloqueo_usuario_id == $sesion_usuario_id) // Si el usuario tiene el bloqueo
             {
@@ -146,8 +139,14 @@ abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
             }
             else // Si el usuario no tiene bloqueo
             {
+                $tiempo = time();
+                $segundos_de_bloqueo = $this->ObtenerSegundosDeBloqueo();
+                $bloqueo_tiempo_hasta = $this->ObtenerValor("bloqueo_tiempo") + $segundos_de_bloqueo; // El Elemento está bloqueado hasta este tiempo
+
                 if(!$bloqueo_usuario_id || $tiempo > $bloqueo_tiempo_hasta) // Si el bloqueo del usuario anterior expiró (o el elemento no está bloqueado)
                 {
+                    $base_de_datos = $this->_InicializarBaseDeDatos();
+
                     $base_de_datos->EjecutarUPDATE
                         (
                             $this->_ObtenerNombreTabla(), // Tabla
@@ -305,9 +304,9 @@ abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
         return array
             (
                 "id" => array("requerido" => TRUE, "soloDeLectura" => TRUE, "nombre" => "ID", "tipoDeDato" => FDW_DATO_INT, "ignorarAlAgregar"=>TRUE, "ignorarAlModificar"=>TRUE),
-                "activo" => array("requerido" => TRUE, "soloDeLectura" => TRUE, "nombre" => "Activo", "tipoDeDato" => FDW_DATO_BOOL, "ignorarAlModificar"=>TRUE, "ignorarAlObtenerValores"=>TRUE),
-                "bloqueo_tiempo" => array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "Tiempo de bloqueo", "tipoDeDato" => FDW_DATO_INT),
-                "bloqueo_usuario_id" => array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "Usuario con el bloqueo", "tipoDeDato" => FDW_DATO_INT),
+                "activo" => array("requerido" => TRUE, "soloDeLectura" => TRUE, "nombre" => "Activo", "tipoDeDato" => FDW_DATO_BOOL, "ignorarAlModificar"=>TRUE),
+                "bloqueo_tiempo" => array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "Tiempo de bloqueo", "tipoDeDato" => FDW_DATO_INT, "ignorarAlObtenerValores"=>TRUE),
+                "bloqueo_usuario_id" => array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "Usuario con el bloqueo", "tipoDeDato" => FDW_DATO_INT, "ignorarAlObtenerValores"=>TRUE),
                 "creacion" => array("requerido" => TRUE, "soloDeLectura" => TRUE, "nombre" => "Creación", "tipoDeDato" => FDW_DATO_INT, "ignorarAlModificar"=>TRUE, "ignorarAlObtenerValores"=>TRUE),
                 "modificacion" => array("requerido" => TRUE, "soloDeLectura" => TRUE, "nombre" => "Modificación", "tipoDeDato" => FDW_DATO_INT, "ignorarAlObtenerValores"=>TRUE)
             );
