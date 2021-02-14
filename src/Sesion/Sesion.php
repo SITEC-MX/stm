@@ -30,11 +30,20 @@ abstract class Sesion extends \Mpsoft\FDW\Sesion\Sesion
         $rol_permiso_nombre = Rol::ObtenerNombrePermiso();
         $this->AgregarPermiso($rol_permiso_nombre, FDW_DATO_PERMISO_OBTENER);
 
-        $roles = Rol::CargarRolesDeUsuario($this->usuario);
+        $permisos_del_usuario = $this->ObtenerPermisosDeUsuario($this->usuario);
 
         $this->QuitarPermiso($rol_permiso_nombre, FDW_DATO_PERMISO_OBTENER);
 
-        $this->permisos = $this->CargarPermisosDeRoles($roles);
+        $this->permisos = $permisos_del_usuario;
+    }
+
+    protected function ObtenerPermisosDeUsuario(Usuario $usuario):array
+    {
+        $roles = Rol::CargarRolesDeUsuario($this->usuario);
+
+        $permisos = $this->CargarPermisosDeRoles($roles);
+
+        return $permisos;
     }
 
     protected function CargarPermisosDeRoles(array $roles):array
