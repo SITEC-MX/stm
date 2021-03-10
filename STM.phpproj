@@ -16,8 +16,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src\Core\Formato.php" />
-    <Compile Include="src\Dato\Aplicacion.php" />
-    <Compile Include="src\Dato\Aplicaciones.php" />
     <Compile Include="src\Dato\Archivo.php" />
     <Compile Include="src\Dato\Archivos.php" />
     <Compile Include="src\Dato\Configuracion.php" />
