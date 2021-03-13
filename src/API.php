@@ -11,11 +11,11 @@ function STM_GET_Elemento(string $elemento_clase, ?int $elemento_id = NULL, ?cal
     return FDW_GET_Elemento($elemento_clase,  $elemento_id, STM_Bloquear_Elemento, STM_Obtener_Resultado);
 }
 
-function STM_POST_Elemento(array $OPENAPI_REQUEST, string $elemento_clase, ?int $elemento_id = NULL, ?callable $guardar_informacion_adicional = NULL, ?callable $procesar_exception_aplicarcambios=NULL):array
+function STM_POST_Elemento(array $OPENAPI_REQUEST, string $elemento_clase, ?int $elemento_id = NULL, ?callable $guardar_informacion_adicional = NULL, ?callable $procesar_exception_aplicarcambios=NULL, &$elemento = NULL):array
 {
     $campos_a_ignorar = array("activo", "bloqueo_tiempo", "bloqueo_usuario_id", "creacion", "modificacion");
 
-    return FDW_POST_Elemento($OPENAPI_REQUEST, $elemento_clase, $elemento_id, STM_Verificar_Elemento_Inicializado, $campos_a_ignorar, $guardar_informacion_adicional, STM_Obtener_Resultado, $procesar_exception_aplicarcambios);
+    return FDW_POST_Elemento($OPENAPI_REQUEST, $elemento_clase, $elemento_id, STM_Verificar_Elemento_Inicializado, $campos_a_ignorar, $guardar_informacion_adicional, STM_Obtener_Resultado, $procesar_exception_aplicarcambios, $elemento);
 }
 
 function STM_DELETE_Elemento(string $elemento_clase, ?int $elemento_id = NULL, ?callable $preparar_elemento_inicializado = NULL):array
