@@ -17,7 +17,7 @@ abstract class Formato
     {
         global $CFG;
 
-        preg_match_all("/{{(\w+\.\w+)}}/", $texto_con_variables, $variables_encontradas); // Obtenemos las etiquetas a remplazar
+        preg_match_all("/{{(\w+(\.\w+){0,1})}}/", $texto_con_variables, $variables_encontradas); // Obtenemos las etiquetas a remplazar
         $variables_a_remplazar = array_flip($variables_encontradas[1]); // Quitamos las variables repetidas
 
         foreach ($variables_a_remplazar as $variable => $tmp) // Para cada variable a remplazar
