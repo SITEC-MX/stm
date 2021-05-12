@@ -7,6 +7,8 @@
  */
 namespace Mpsoft\STM\Sesion;
 
+use \Exception;
+
 abstract class Sesion extends \Mpsoft\FDW\Sesion\Sesion
 {
     public function __construct()
@@ -263,6 +265,23 @@ abstract class Sesion extends \Mpsoft\FDW\Sesion\Sesion
         }
 
         return $configuraciones;
+    }
+
+    public function ObtenerConfiguracion(string $nombre):?array
+    {
+        $usuario = $this->ObtenerUsuario();
+
+        $configuracion = NULL;
+        if($usuario) // Si hay un usuario en sesión
+        {
+            $configuracion = $usuario->ObtenerConfiguracion($nombre);
+        }
+        else // Si no hay un usuario en sesion
+        {
+            throw new Exception("Sesión sin usuario - No implementado");
+        }
+
+        return $configuracion;
     }
 
 

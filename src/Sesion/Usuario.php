@@ -136,6 +136,11 @@ abstract class Usuario extends \Mpsoft\FDW\Sesion\Usuario
         $configuraciones = array();
         foreach($this->configuraciones as $nombre=>$configuracion)
         {
+            if($configuracion["es_secreto"]) // Si la configuración es secreto
+            {
+                continue;
+            }
+
             $configuracion_a_agregar = array("valor" =>$configuracion["valor"], "forzar"=>$configuracion["forzar"], "tipo"=>$configuracion["tipo"]);
 
             if(isset($configuracion["catalogo"])) // Si el campo tiene un catálogo
@@ -149,7 +154,7 @@ abstract class Usuario extends \Mpsoft\FDW\Sesion\Usuario
         return $configuraciones;
     }
 
-    public function ObtenerConfiguracion(string $nombre)
+    public function ObtenerConfiguracion(string $nombre):?array
     {
         if(!$this->configuraciones) // Si las configuraciones no se ha cargado
         {
