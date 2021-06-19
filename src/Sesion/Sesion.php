@@ -78,7 +78,7 @@ abstract class Sesion extends \Mpsoft\FDW\Sesion\Sesion
             $this->permisos[$modulo] | $permiso : // El permiso final es el permiso actual + nuevo permiso
             $permiso;
 
-        $this->permisos[$modulo] = $permiso;
+        $this->permisos[$modulo] = $permiso_final;
     }
 
     public function QuitarPermiso(string $modulo, int $permiso):void
