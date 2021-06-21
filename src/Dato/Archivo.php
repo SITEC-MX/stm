@@ -108,6 +108,7 @@ abstract class Archivo extends \Mpsoft\STM\Dato\ElementoFDW
             "image/jpeg" => "jpg",
             "image/png" => "png",
             "image/svg+xml" => "svg",
+            "image/webp" => "webp",
             "application/pdf" => "pdf",
             "text/plain" => "txt",
             "text/html" => "html",
