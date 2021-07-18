@@ -153,9 +153,10 @@ abstract class Archivo extends \Mpsoft\STM\Dato\ElementoFDW
             $time = $tiempo ? $tiempo : time();
             $nombre_archivo = "{$nombre_seguro}-{$time}.{$extension}";
 
-            $archivo_ruta = $archivo_clase::EscribirArchivoEnDisco($ruta_directorio, $nombre_archivo, base64_decode($contenido), $mimetype);
-
             $archivo = new $archivo_clase();
+
+            $archivo_ruta = $archivo_clase::EscribirArchivoEnDisco($archivo, $ruta_directorio, $nombre_archivo, base64_decode($contenido), $mimetype);
+                        
             $archivo->AsignarValorSinValidacion("ruta",$archivo_ruta);
             $archivo->AsignarValorSinValidacion("tipo", $elemento_clase);
             $archivo->AsignarValorSinValidacion("tipo_id", $elemento_id);
@@ -217,7 +218,7 @@ abstract class Archivo extends \Mpsoft\STM\Dato\ElementoFDW
         return isset(Archivo::$mimetype[$extension]) ? Archivo::$mimetype[$extension] : NULL;
     }
 
-    public static function EscribirArchivoEnDisco($ruta_directorio, $nombre_archivo, $contenido_archivo, $mimetype)
+    public static function EscribirArchivoEnDisco(Archivo $archivo, string $ruta_directorio, string $nombre_archivo, string $contenido_archivo, string $mimetype):string
     {
         global $CFG;
 
