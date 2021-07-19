@@ -29,12 +29,9 @@ abstract class Archivo extends \Mpsoft\STM\Dato\ElementoFDW
         global $CFG;
 
         $clase_actual = get_class($this);
-
-        $ruta = $this->ObtenerValor("ruta");
+        $clase_actual::BorrarArchivoDeDisco($this);
 
         parent::_Eliminar();
-
-        $clase_actual::BorrarArchivoDeDisco($ruta);
     }
 
 
@@ -239,9 +236,11 @@ abstract class Archivo extends \Mpsoft\STM\Dato\ElementoFDW
         return $archivo_ruta;
     }
 
-    public static function BorrarArchivoDeDisco($ruta_archivo)
+    public static function BorrarArchivoDeDisco(Archivo $archivo):void
     {
         global $CFG;
+
+        $ruta_archivo = $archivo->ObtenerValor("ruta");
 
         unlink("{$CFG->repositorio_ruta}/{$ruta_archivo}");
     }
