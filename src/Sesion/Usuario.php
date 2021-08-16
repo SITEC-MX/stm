@@ -347,6 +347,20 @@ abstract class Usuario extends \Mpsoft\FDW\Sesion\Usuario
 
 
 
+    public abstract function Reactivar();
+
+    public abstract function IndicarLoginFallido();
+
+    public abstract function BorrarIntentosDeLogin();
+
+
+
+
+
+
+
+
+
 
 
     /**
