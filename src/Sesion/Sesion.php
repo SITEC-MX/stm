@@ -220,6 +220,11 @@ abstract class Sesion extends \Mpsoft\FDW\Sesion\Sesion
         return $exito;
     }
 
+    public function ActualizarElementoBloqueado(string $tipo, int $id)
+    {
+        $this->token->ActualizarElementoBloqueado($tipo, $id);
+    }
+
 
 
 

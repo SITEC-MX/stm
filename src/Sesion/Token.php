@@ -115,6 +115,20 @@ abstract class Token extends \Mpsoft\FDW\Sesion\Token
 
 
 
+    public function ActualizarElementoBloqueado(string $tipo, int $id)
+    {
+        $this->AsignarValorSinValidacion("bloqueo_tipo", $tipo);
+        $this->AsignarValorSinValidacion("bloqueo_id", $id);
+        $this->AplicarCambios();
+    }
+
+
+
+
+
+
+
+
     /**
      * Inicializa el gestor de base de datos utilizado por el Elemento
      * @return \Mpsoft\FDW\Dato\BdD
@@ -149,6 +163,9 @@ abstract class Token extends \Mpsoft\FDW\Sesion\Token
 
         $campos["bloqueado"] = array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "¿Token bloqueado?", "tipoDeDato" => FDW_DATO_BOOL); // Es requerido pero se asigna antes de agregar
         $campos["ultimaaccion_tiempo"] = array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "Última acción - Tiempo", "tipoDeDato" => FDW_DATO_INT);
+
+        $campos["bloqueo_tipo"] = array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "Bloqueo (tipo Elemento)", "tipoDeDato" => FDW_DATO_STRING, "tamanoMaximo"=>250);
+        $campos["bloqueo_id"] = array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "Bloqueo (ID Elemento)", "tipoDeDato" => FDW_DATO_INT);
 
         return $campos;
     }

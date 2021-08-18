@@ -38,6 +38,13 @@ abstract class ElementoSoloLectura extends \Mpsoft\STM\Dato\Elemento
         return 0; // No hay bloqueos en los elementos sólo de lectura
     }
 
+    protected function InicializarTokenBloqueante():?\Mpsoft\STM\Sesion\Token
+    {
+        throw new Exception("Los Elementos solo de lectura no tienen tiempo de bloqueo.");
+
+        return NULL;
+    }
+
 
         /**
      * Verifica si se tiene permiso para realizar la acción sobre el Elemento

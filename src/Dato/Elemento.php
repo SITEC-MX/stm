@@ -127,43 +127,59 @@ abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
         $usuario = $SESION->ObtenerUsuario();
         if($usuario) // Si hay un usuario en sesión
         {
-            $bloqueo_usuario_id = $this->ObtenerValor("bloqueo_usuario_id");
-            $sesion_usuario_id = $usuario->ObtenerValor("id");
+            // Obtenemos el token de la sesión
+            $sesion_token_id = $SESION->ObtenerTokenID();
+            $bloqueo_token_id = $this->ObtenerValor("bloqueo_token_id");
 
-            if($bloqueo_usuario_id == $sesion_usuario_id) // Si el usuario tiene el bloqueo
+            if(!$bloqueo_token_id || $bloqueo_token_id === $sesion_token_id) // Si el token actual tiene el bloqueo (o si el Elemento no está bloqueado)
             {
                 // Actualizamos el tiempo de bloqueo
-                $this->_ActualizarTiempoDeBloqueo();
+                $this->_Bloquear();
 
                 $elemento_bloqueado = TRUE;
             }
-            else // Si el usuario no tiene bloqueo
+            else // Si el token actual no tiene el bloqueo
             {
-                $tiempo = time();
                 $segundos_de_bloqueo = $this->ObtenerSegundosDeBloqueo();
-                $bloqueo_tiempo_hasta = $this->ObtenerValor("bloqueo_tiempo") + $segundos_de_bloqueo; // El Elemento está bloqueado hasta este tiempo
 
-                if(!$bloqueo_usuario_id || $tiempo > $bloqueo_tiempo_hasta) // Si el bloqueo del usuario anterior expiró (o el elemento no está bloqueado)
+                // Verificamos si el tiempo de bloqueo sigue vigente. Si el tiempo ya expiró podemos bloquear
+                $tiempo = time();
+                $bloqueo_tiempo = $this->ObtenerValor("bloqueo_tiempo"); // Tiempo en el que se bloqueó el Elemento
+                $bloqueo_tiempo_hasta = $bloqueo_tiempo + $segundos_de_bloqueo;
+
+                if($tiempo>$bloqueo_tiempo_hasta) // Si el bloqueo anterior ya expiró
                 {
-                    $base_de_datos = $this->_InicializarBaseDeDatos();
-
-                    $base_de_datos->EjecutarUPDATE
-                        (
-                            $this->_ObtenerNombreTabla(), // Tabla
-                            array("bloqueo_usuario_id", "bloqueo_tiempo"), // Campos
-                            array($sesion_usuario_id, $tiempo), // Valores
-                            array // Filtros
-                            (
-                                "id" => array(array("operador"=>FDW_DATO_BDD_OPERADOR_IGUAL, "operando"=>$this->ObtenerValor("id")))
-                            )
-                        );
-
-                    $this->AsignarSinValidarNiNotificar("bloqueo_usuario_id", $sesion_usuario_id);
-                    $this->AsignarSinValidarNiNotificar("bloqueo_tiempo", $tiempo);
+                    // Actualizamos el tiempo de bloqueo
+                    $this->_Bloquear();
 
                     $elemento_bloqueado = TRUE;
+                }
+                else // Si el bloqueo anterior no ha expirado
+                {
+                    // Verificamos si el token sigue vigente y si sigue bloqueando el Elemento
+                    $token_bloqueante = $this->InicializarTokenBloqueante();
 
-                    $this->DispararEvento("AlBloquearElemento");
+                    if(!$token_bloqueante) // Si el token bloqueante ya no es válido
+                    {
+                        // Actualizamos el tiempo de bloqueo
+                        $this->_Bloquear();
+
+                        $elemento_bloqueado = TRUE;
+                    }
+                    else // Si el token bloqueante sigue activo
+                    {
+                        $clase_bloqueada = $token_bloqueante->ObtenerValor("bloqueo_tipo");
+                        $id_bloqueado = $token_bloqueante->ObtenerValor("bloqueo_id");
+                        $id_actual = $this->ObtenerValor("id");
+
+                        if($clase_bloqueada !== $this->clase_actual || $id_bloqueado !== $id_actual) // Si el bloqueo ya no es de este Elemento
+                        {
+                            // Actualizamos el tiempo de bloqueo
+                            $this->_Bloquear();
+
+                            $elemento_bloqueado = TRUE;
+                        }                        
+                    }
                 }
             }
         }
@@ -173,6 +189,50 @@ abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
         }
 
         return $elemento_bloqueado;
+    }
+
+    private function _Bloquear():void
+    {
+        global $SESION;
+        $sesion_token_id = $SESION->ObtenerTokenID();
+        $bloqueo_token_id = $this->ObtenerValor("bloqueo_token_id");
+        $tiempo = time();
+
+        // Actualizamos la fecha de bloqueo del Elemento actual
+        $base_de_datos = $this->_InicializarBaseDeDatos();
+
+        $campos = array("bloqueo_tiempo");
+        $valores = array($tiempo);
+
+        if($sesion_token_id !== $bloqueo_token_id)
+        {
+            $campos[] = "bloqueo_token_id";
+            $valores[] = $sesion_token_id;
+        }
+
+        $base_de_datos->EjecutarUPDATE
+        (
+            $this->_ObtenerNombreTabla(), // Tabla
+            $campos, // Campos
+            $valores, // Valores
+            array // Filtros
+            (
+                "id" => array(array("operador"=>FDW_DATO_BDD_OPERADOR_IGUAL, "operando"=>$this->ObtenerValor("id")))
+            )
+        );
+
+        $this->AsignarSinValidarNiNotificar("bloqueo_token_id", $sesion_token_id);
+        $this->AsignarSinValidarNiNotificar("bloqueo_tiempo", $tiempo);
+
+
+
+        // Actualizamos los datos de bloqueo del token
+        $id = $this->ObtenerValor("id");
+        $SESION->ActualizarElementoBloqueado($this->clase_actual, $id);
+
+
+
+        $this->DispararEvento("AlBloquearElemento");
     }
 
     private function _ActualizarTiempoDeBloqueo():void
@@ -268,6 +328,13 @@ abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
 
 
 
+    protected abstract function InicializarTokenBloqueante():?\Mpsoft\STM\Sesion\Token;
+
+
+
+
+
+
 
 
 
@@ -306,7 +373,7 @@ abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
                 "id" => array("requerido" => TRUE, "soloDeLectura" => TRUE, "nombre" => "ID", "tipoDeDato" => FDW_DATO_INT, "ignorarAlAgregar"=>TRUE, "ignorarAlModificar"=>TRUE),
                 "activo" => array("requerido" => TRUE, "soloDeLectura" => TRUE, "nombre" => "Activo", "tipoDeDato" => FDW_DATO_BOOL, "ignorarAlModificar"=>TRUE),
                 "bloqueo_tiempo" => array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "Tiempo de bloqueo", "tipoDeDato" => FDW_DATO_INT, "ignorarAlObtenerValores"=>TRUE),
-                "bloqueo_usuario_id" => array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "Usuario con el bloqueo", "tipoDeDato" => FDW_DATO_INT, "ignorarAlObtenerValores"=>TRUE),
+                "bloqueo_token_id" => array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "Token con el bloqueo", "tipoDeDato" => FDW_DATO_INT, "ignorarAlObtenerValores"=>TRUE),
                 "creacion" => array("requerido" => TRUE, "soloDeLectura" => TRUE, "nombre" => "Creación", "tipoDeDato" => FDW_DATO_INT, "ignorarAlModificar"=>TRUE, "ignorarAlObtenerValores"=>TRUE),
                 "modificacion" => array("requerido" => TRUE, "soloDeLectura" => TRUE, "nombre" => "Modificación", "tipoDeDato" => FDW_DATO_INT, "ignorarAlObtenerValores"=>TRUE)
             );
