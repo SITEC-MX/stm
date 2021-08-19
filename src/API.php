@@ -54,7 +54,10 @@ function STM_Obtener_Resultado($elemento):?array
     $resultado = array();
 
     $resultado["valores"] = $elemento->ObtenerValores();
-    $resultado["bloqueado"] = $elemento->Bloquear();
+
+    $bloqueado = $elemento->Bloquear();
+    $nombre = !$bloqueado ? $elemento->ObtenerTokenBloqueanteNombre() : NULL;
+    $resultado["bloqueo"] = array("bloqueado"=>$bloqueado, "nombre"=>$nombre);
 
     return $resultado;
 }
