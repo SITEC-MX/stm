@@ -254,21 +254,14 @@ abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
         $this->AsignarSinValidarNiNotificar("bloqueo_tiempo", $tiempo);
     }
 
-    public function BloqueadoPorUsuarioEnSesion():bool
+    public function BloqueadoPorTokenEnSesion():bool
     {
         global $SESION;
 
-        $bloqueado_por_usuario_en_sesion = FALSE;
+        $sesion_token_id = $SESION->ObtenerTokenID();
+        $bloqueo_token_id = $this->ObtenerValor("bloqueo_token_id");
 
-        $usuario = $SESION->ObtenerUsuario();
-        if($usuario) // Si hay un usuario en sesión
-        {
-            $sesion_usuario_id = $usuario->ObtenerValor("id");
-
-            $bloqueado_por_usuario_en_sesion = $this->ObtenerValor("bloqueo_usuario_id") == $sesion_usuario_id;
-        }
-
-        return $bloqueado_por_usuario_en_sesion;
+        return $sesion_token_id === $bloqueo_token_id;
     }
 
     /**

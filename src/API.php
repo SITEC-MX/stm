@@ -13,7 +13,7 @@ function STM_GET_Elemento(string $elemento_clase, ?int $elemento_id = NULL, ?cal
 
 function STM_POST_Elemento(array $OPENAPI_REQUEST, string $elemento_clase, ?int $elemento_id = NULL, ?callable $guardar_informacion_adicional = NULL, ?callable $procesar_exception_aplicarcambios=NULL, &$elemento = NULL):array
 {
-    $campos_a_ignorar = array("activo", "bloqueo_tiempo", "bloqueo_usuario_id", "creacion", "modificacion");
+    $campos_a_ignorar = array("activo", "bloqueo_tiempo", "bloqueo_token_id", "creacion", "modificacion");
 
     return FDW_POST_Elemento($OPENAPI_REQUEST, $elemento_clase, $elemento_id, STM_Verificar_Elemento_Inicializado, $campos_a_ignorar, $guardar_informacion_adicional, STM_Obtener_Resultado, $procesar_exception_aplicarcambios, $elemento);
 }
@@ -30,7 +30,7 @@ function STM_Verificar_Elemento_Inicializado($elemento):?array
     if(!$elemento->EsNuevo()) // Si es un Elemento existente
     {
         // Verificamos que el usuario actual tenga el bloqueo
-        if( !$elemento->BloqueadoPorUsuarioEnSesion() ) // Si el usuario no tiene el bloqueo
+        if( !$elemento->BloqueadoPorTokenEnSesion() ) // Si el usuario no tiene el bloqueo
         {
             $estado = array();
             $estado["estado"] = API_ELEMENTO_BLOQUEADO;

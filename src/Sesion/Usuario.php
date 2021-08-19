@@ -406,7 +406,7 @@ abstract class Usuario extends \Mpsoft\FDW\Sesion\Usuario
 
         $campos["activo"] = array("requerido" => true, "soloDeLectura" => true, "nombre" => "Activo", "tipoDeDato" => FDW_DATO_BOOL, "ignorarAlModificar"=>true, "ignorarAlObtenerValores"=>true);
         $campos["bloqueo_tiempo"] = array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "Tiempo de bloqueo", "tipoDeDato" => FDW_DATO_INT, "ignorarAlModificar"=>TRUE, "ignorarAlObtenerValores"=>TRUE);
-        $campos["bloqueo_usuario_id"] = array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "Usuario con el bloqueo", "tipoDeDato" => FDW_DATO_INT, "ignorarAlModificar"=>TRUE, "ignorarAlObtenerValores"=>TRUE);
+        $campos["bloqueo_token_id"] = array("requerido" => FALSE, "soloDeLectura" => TRUE, "nombre" => "Usuario con el bloqueo", "tipoDeDato" => FDW_DATO_INT, "ignorarAlModificar"=>TRUE, "ignorarAlObtenerValores"=>TRUE);
         $campos["creacion"] = array("requerido" => true, "soloDeLectura" => true, "nombre" => "Creación", "tipoDeDato" => FDW_DATO_INT, "ignorarAlModificar"=>true, "ignorarAlObtenerValores"=>true);
         $campos["modificacion"] = array("requerido" => true, "soloDeLectura" => true, "nombre" => "Modificación", "tipoDeDato" => FDW_DATO_INT, "ignorarAlObtenerValores"=>true);
 
