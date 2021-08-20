@@ -12,3 +12,9 @@ define("TOKEN_BLOQUEADO", -100);                          // El token está bloqu
 define("API_ELEMENTO_BLOQUEADO", 200);                    // Se intentó modificar un Elemento bloqueado por otro usuario
 define("API_ELEMENTO_ELIMINADO", 201);                    // Se intentó modificar un Elemento eliminado (inactivo)
 define("API_ELEMENTO_INACTIVO", 202);                     // Ocurre cuando se intenta eliminar un Elemento que ya está inactivo.
+
+
+
+// Permisos
+define("STM_PERMISO_TOKEN_VER_BLOQUEANTE", 16);
+define("STM_PERMISO_TOKEN_DESBLOQUEARELEMENTO", 32);

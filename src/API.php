@@ -6,6 +6,8 @@
  * v.2.0.0.0 - 2021-02-04
  */
 
+use \Mpsoft\STM\Sesion\Token;
+
 function STM_GET_Elemento(string $elemento_clase, ?int $elemento_id = NULL, ?callable $preparar_elemento_inicializado = NULL, ?callable $obtener_resultado=NULL):array
 {
     return FDW_GET_Elemento($elemento_clase,  $elemento_id, STM_Bloquear_Elemento, STM_Obtener_Resultado);
@@ -51,13 +53,30 @@ function STM_Verificar_Elemento_Inicializado($elemento):?array
 
 function STM_Obtener_Resultado($elemento):?array
 {
-    $resultado = array();
+    global $SESION; // En sistemas STM se asume la existencia de la variable global $SESION
 
+    $puede_desbloquear = $SESION->PedirAutorizacion( Token::ObtenerNombrePermiso(), STM_PERMISO_TOKEN_DESBLOQUEARELEMENTO);
+    $puede_ver_bloqueante = $SESION->PedirAutorizacion( Token::ObtenerNombrePermiso(), STM_PERMISO_TOKEN_VER_BLOQUEANTE);
+
+    $resultado = array();
     $resultado["valores"] = $elemento->ObtenerValores();
 
     $bloqueado = $elemento->Bloquear();
-    $nombre = !$bloqueado ? $elemento->ObtenerTokenBloqueanteNombre() : NULL;
-    $resultado["bloqueo"] = array("bloqueado"=>$bloqueado, "nombre"=>$nombre);
+
+    // Obtenemos el token bloqueante sólo si tiene permisos para desbloquer, si no no tiene caso mandarlo
+    $token_id = NULL;
+    if($puede_desbloquear) // Si tiene permiso para desbloquear el Elemento
+    {
+        $token_id = $elemento->ObtenerValor("bloqueo_token_id");
+    }
+
+    $bloqueo_nombre = NULL;
+    if(!$bloqueado && $puede_ver_bloqueante) // Si no está bloqueado y podemos ver el nombre del usuario bloqueante
+    {
+        $bloqueo_nombre = $elemento->ObtenerTokenBloqueanteNombre();
+    }
+
+    $resultado["bloqueo"] = array("bloqueado"=>$bloqueado, "nombre"=>$bloqueo_nombre, "token_id"=>$token_id);
 
     return $resultado;
 }
