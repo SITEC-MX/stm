@@ -122,6 +122,13 @@ abstract class Token extends \Mpsoft\FDW\Sesion\Token
         $this->AplicarCambios();
     }
 
+    public function BorrarElementoBloqueado()
+    {
+        $this->AsignarValorSinValidacion("bloqueo_tipo", NULL);
+        $this->AsignarValorSinValidacion("bloqueo_id", NULL);
+        $this->AplicarCambios();
+    }
+
 
 
 
