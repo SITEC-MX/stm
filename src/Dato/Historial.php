@@ -24,14 +24,9 @@ class Historial extends \Mpsoft\STM\Dato\ElementoFDW
 
         if($id) // Si se inicializa un elemento existente
         {
-
         }
         else // Si se inicializa un elemento nuevo
         {
-            if(!$SESION->SesionIniciada()) // Si la sesión de usuario no está iniciada
-            {
-                throw new ElementoException("Se requiere de una sesión válida para poder inicializar el elemento.", Historial::class);
-            }
         }
 
         $this->VincularEvento("AntesDeAgregar", "AntesDeAgregar", function(){ $this->AntesDeAgregar(); });
@@ -76,7 +71,10 @@ class Historial extends \Mpsoft\STM\Dato\ElementoFDW
         global $SESION;
 
         $usuario =  $SESION->ObtenerUsuario();
-        $this->AsignarUsuario($usuario);
+        if($usuario) // Si hay un usuario en sesión
+        {
+            $this->AsignarUsuario($usuario);
+        }
 
         $this->AsignarValorSinValidacion("tiempo", time());
     }
