@@ -26,6 +26,7 @@ abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
 
         if ($id > 0) // Si es un Elemento existente
         {
+            $this->VincularEvento("DespuesDeObtener", "PuedeAccederAEsteElemento", function(){ $this->PuedeAccederAEsteElemento(); });
         }
         else // Si es un Elemento nuevo
         {
@@ -47,6 +48,10 @@ abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
         $this->VincularEvento("DespuesDeModificar", "CrearHistorial", function(){ $this->CrearHistorialModificar(); });
         $this->VincularEvento("DespuesDeEliminar", "CrearHistorial", function(){ $this->CrearHistorialEliminar(); });
     }
+
+
+
+    protected abstract function PuedeAccederAEsteElemento():void;
 
 
 
