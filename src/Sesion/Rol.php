@@ -22,6 +22,9 @@ class Rol extends \Mpsoft\STM\Dato\ElementoSoloLectura
         parent::__construct($id);
     }
 
+    protected function PuedeAccederAEsteElemento():void
+    {
+    }
 
 
 
