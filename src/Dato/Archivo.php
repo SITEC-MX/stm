@@ -112,7 +112,8 @@ abstract class Archivo extends \Mpsoft\STM\Dato\ElementoFDW
             "text/xml" => "xml",
             "audio/mpeg" => "mpg",
             "audio/ogg" => "ogg",
-            "video/mp4" => "mp4"
+            "video/mp4" => "mp4",
+            "application/zip" => "zip"
         );
 
     private static $mimetype = NULL;
