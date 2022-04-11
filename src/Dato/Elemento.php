@@ -136,54 +136,57 @@ abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
             $sesion_token_id = $SESION->ObtenerTokenID();
             $bloqueo_token_id = $this->ObtenerValor("bloqueo_token_id");
 
-            if(!$bloqueo_token_id || $bloqueo_token_id === $sesion_token_id) // Si el token actual tiene el bloqueo (o si el Elemento no está bloqueado)
+            if($sesion_token_id) // Si estamos en una sesión con token -- Hay sesiones que no tienen token en cuyo caso no son capaces de bloquear Elementos
             {
-                // Actualizamos el tiempo de bloqueo
-                $this->_Bloquear();
-
-                $elemento_bloqueado = TRUE;
-            }
-            else // Si el token actual no tiene el bloqueo
-            {
-                $segundos_de_bloqueo = $this->ObtenerSegundosDeBloqueo();
-
-                // Verificamos si el tiempo de bloqueo sigue vigente. Si el tiempo ya expiró podemos bloquear
-                $tiempo = time();
-                $bloqueo_tiempo = $this->ObtenerValor("bloqueo_tiempo"); // Tiempo en el que se bloqueó el Elemento
-                $bloqueo_tiempo_hasta = $bloqueo_tiempo + $segundos_de_bloqueo;
-
-                if($tiempo>$bloqueo_tiempo_hasta) // Si el bloqueo anterior ya expiró
+                if(!$bloqueo_token_id || $bloqueo_token_id === $sesion_token_id) // Si el token actual tiene el bloqueo (o si el Elemento no está bloqueado)
                 {
                     // Actualizamos el tiempo de bloqueo
                     $this->_Bloquear();
 
                     $elemento_bloqueado = TRUE;
                 }
-                else // Si el bloqueo anterior no ha expirado
+                else // Si el token actual no tiene el bloqueo
                 {
-                    // Verificamos si el token sigue vigente y si sigue bloqueando el Elemento
-                    $token_bloqueante = $this->InicializarTokenBloqueante();
+                    $segundos_de_bloqueo = $this->ObtenerSegundosDeBloqueo();
 
-                    if(!$token_bloqueante) // Si el token bloqueante ya no es válido
+                    // Verificamos si el tiempo de bloqueo sigue vigente. Si el tiempo ya expiró podemos bloquear
+                    $tiempo = time();
+                    $bloqueo_tiempo = $this->ObtenerValor("bloqueo_tiempo"); // Tiempo en el que se bloqueó el Elemento
+                    $bloqueo_tiempo_hasta = $bloqueo_tiempo + $segundos_de_bloqueo;
+
+                    if($tiempo>$bloqueo_tiempo_hasta) // Si el bloqueo anterior ya expiró
                     {
                         // Actualizamos el tiempo de bloqueo
                         $this->_Bloquear();
 
                         $elemento_bloqueado = TRUE;
                     }
-                    else // Si el token bloqueante sigue activo
+                    else // Si el bloqueo anterior no ha expirado
                     {
-                        $clase_bloqueada = $token_bloqueante->ObtenerValor("bloqueo_tipo");
-                        $id_bloqueado = $token_bloqueante->ObtenerValor("bloqueo_id");
-                        $id_actual = $this->ObtenerValor("id");
+                        // Verificamos si el token sigue vigente y si sigue bloqueando el Elemento
+                        $token_bloqueante = $this->InicializarTokenBloqueante();
 
-                        if($clase_bloqueada !== $this->clase_actual || $id_bloqueado !== $id_actual) // Si el bloqueo ya no es de este Elemento
+                        if(!$token_bloqueante) // Si el token bloqueante ya no es válido
                         {
                             // Actualizamos el tiempo de bloqueo
                             $this->_Bloquear();
 
                             $elemento_bloqueado = TRUE;
-                        }                        
+                        }
+                        else // Si el token bloqueante sigue activo
+                        {
+                            $clase_bloqueada = $token_bloqueante->ObtenerValor("bloqueo_tipo");
+                            $id_bloqueado = $token_bloqueante->ObtenerValor("bloqueo_id");
+                            $id_actual = $this->ObtenerValor("id");
+
+                            if($clase_bloqueada !== $this->clase_actual || $id_bloqueado !== $id_actual) // Si el bloqueo ya no es de este Elemento
+                            {
+                                // Actualizamos el tiempo de bloqueo
+                                $this->_Bloquear();
+
+                                $elemento_bloqueado = TRUE;
+                            }                        
+                        }
                     }
                 }
             }
