@@ -382,9 +382,3 @@ abstract class Elemento extends \Mpsoft\FDW\Dato\Elemento
 
     public abstract static function ObtenerTipoHistorial();
 }
-
-
-define("STM_ELEMENTO_SUBELEMENTO_NUEVO", 1);
-define("STM_ELEMENTO_SUBELEMENTO_SINCAMBIOS", 2);
-define("STM_ELEMENTO_SUBELEMENTO_CONCAMBIOS", 3);
-define("STM_ELEMENTO_SUBELEMENTO_ELIMINADO", 4);
