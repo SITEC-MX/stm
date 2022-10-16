@@ -97,5 +97,5 @@ function GenerarURLAvatar(string $nombre)
         }
     }
 
-    return "https://ui-avatars.com/api/?size=256&background={$color}&color=fff&name={$iniciales}";
+    return "https://avatar.svc-sitec.com?tamano=256&fondo_color={$color}&letra_color=fff&nombre={$iniciales}";
 }
