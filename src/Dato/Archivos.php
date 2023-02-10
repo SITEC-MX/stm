@@ -80,8 +80,6 @@ class Archivos extends \Mpsoft\STM\Dato\ModuloFDW
 
     public static function _ObtenerArchivosInseguro($elemento_clase, $elemento_id, $nombre = NULL)
     {
-        global $CFG;
-
         $archivos = array();
 
         $filtros = array
@@ -105,8 +103,9 @@ class Archivos extends \Mpsoft\STM\Dato\ModuloFDW
         {
             $ruta = $elemento["ruta"];
 
-            $archivos[ $elemento["nombre"] ] = array("ruta"=>"{$CFG->repositorio_www}/{$ruta}", "id"=>$elemento["id"]);
+            $archivos[ $elemento["nombre"] ] = array("ruta"=>"{$ruta}", "id"=>$elemento["id"]);
         }
+
         return $archivos;
     }
 
