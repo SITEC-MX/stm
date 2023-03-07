@@ -86,6 +86,8 @@ function GenerarURLAvatar(string $nombre)
     }
     else // Si el nombre tiene caracteres
     {
+        $nombre = \Mpsoft\STM\Dato\Archivo::QuitarAcentos($nombre);
+
         $elementos = explode(" ", $nombre, ); // Separamos el nombre por palabra
 
         foreach($elementos as $elemento) // Para cada palabra del nombre
