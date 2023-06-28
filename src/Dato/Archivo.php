@@ -103,6 +103,7 @@ abstract class Archivo extends \Mpsoft\STM\Dato\ElementoFDW
     private static $extension = array
         (
             "image/jpeg" => "jpg",
+            "image/jpg" => "jpg",
             "image/png" => "png",
             "image/svg+xml" => "svg",
             "image/webp" => "webp",
